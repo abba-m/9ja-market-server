@@ -1,17 +1,13 @@
 const express = require("express");
-const { graphqlHTTP } = require("express-graphql");
 const morgan = require("morgan");
 const cors = require("cors");
 const { constructRes } = require("./utils/network.utils");
+const { handleRpcResponse } = require("./services/rpcServer");
 
 //routers
 const authRouter = require("./api/auth/auth.routes");
 const usersRouter = require("./api/users/users.routes");
 const postsRouter = require("./api/posts/posts.routes");
-
-//graphQL
-const rootSchema = require("./graphql/schemas/index");
-const rootResolver = require("./graphql/resolvers/index");
 
 const app = express();
 
@@ -23,18 +19,13 @@ app.use(
     origin: "*",
   })
 );
+
 //routes
 app.use("/auth", authRouter);
 app.use("/api/users", usersRouter);
 app.use("/api/posts", postsRouter);
-app.use(
-  "/graphql",
-  graphqlHTTP({
-    schema: rootSchema,
-    rootValue: rootResolver,
-    graphiql: true,
-  })
-);
+app.post("/json-rpc", handleRpcResponse);
+require("./services/rpcMethods");
 
 //Logging
 app.use(morgan("dev"));

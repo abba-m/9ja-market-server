@@ -2005,6 +2005,11 @@ json-buffer@3.0.0:
   resolved "https://registry.npmjs.org/json-buffer/-/json-buffer-3.0.0.tgz"
   integrity sha1-Wx85evx11ne96Lz8Dkfh+aPZqJg=
 
+json-rpc-2.0@^1.4.1:
+  version "1.4.1"
+  resolved "https://registry.yarnpkg.com/json-rpc-2.0/-/json-rpc-2.0-1.4.1.tgz#182349866ea04d7b692f099f8445b777bae74eab"
+  integrity sha512-OX1NJhpIfuK4GjDnJ/gKtZy1HOYo0l4eL0a4rb0rNeQheX1xlyQ9+JMmPzs/sFNthpS/TXKPWlGo09X7B5l81A==
+
 json-schema-traverse@^0.4.1:
   version "0.4.1"
   resolved "https://registry.yarnpkg.com/json-schema-traverse/-/json-schema-traverse-0.4.1.tgz#69f6a87d9513ab8bb8fe63bdb0979c448e684660"
