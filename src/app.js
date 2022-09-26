@@ -25,7 +25,7 @@ app.use("/auth", authRouter);
 app.use("/api/users", usersRouter);
 app.use("/api/posts", postsRouter);
 app.post("/json-rpc", handleRpcResponse);
-require("./services/rpcMethods");
+require("./api/rpcMethods"); //NOTE: add index if this fails
 
 //Logging
 app.use(morgan("dev"));
