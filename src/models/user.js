@@ -7,9 +7,19 @@ const User = sequelizeConn.define("User", {
     primaryKey: true,
     allowNull: false,
   },
-  fullName: {
+  firstName: {
     type: DataTypes.STRING,
     allowNull: false,
+  },
+  lastName: {
+    type: DataTypes.STRING,
+    allowNull: false,
+  },
+  fullName: {
+    type: DataTypes.VIRTUAL(DataTypes.STRING, ["firstName", "lastName"]),
+    get() {
+      return `${this.firstName} ${this.lastName}`;
+    },
   },
   email: {
     type: DataTypes.STRING,
