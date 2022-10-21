@@ -1,4 +1,4 @@
-const { sequelizeConn, DataTypes } = require("../config/database/db");
+const { sequelizeConn, DataTypes } = require("../config/db");
 
 const Post = sequelizeConn.define("Post", {
   postId: {

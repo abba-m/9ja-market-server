@@ -10,9 +10,9 @@ const randNum = require("random-number-csprng");
 
 
 exports.createUserHandler = async function (req, res) {
-  const { email, fullName, password, phone } = req.body;
+  const { email, firstName, lastName, password, phone } = req.body;
 
-  if (!email || !fullName || !password)
+  if (!email || !firstName || !lastName || !password)
     return constructError(res, 400, "Bad Request", "All fields are required.");
 
   try {
@@ -24,7 +24,8 @@ exports.createUserHandler = async function (req, res) {
     const user = User.build({
       email,
       phone,
-      fullName,
+      firstName,
+      lastName,
       password: hashedPass,
     });
 

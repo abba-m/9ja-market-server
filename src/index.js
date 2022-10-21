@@ -2,7 +2,7 @@ const http = require("http");
 const dotenv = require("dotenv");
 const app = require("./app");
 //const connectDB = require("./config/db")
-const { sequelizeConn } = require("./config/database/db");
+const { sequelizeConn } = require("./config/db");
 const { normalizePort } = require("./utils/utils");
 const cloudinary = require("cloudinary").v2;
 
