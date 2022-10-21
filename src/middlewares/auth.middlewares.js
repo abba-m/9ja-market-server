@@ -4,7 +4,6 @@ const { constructError } = require("../utils/network.utils");
 function isAuth(req, res, next) {
   const token = req.header("Authorization");
 
-
   if (!token)
     return constructError(res, 401, "Unauthorized", "Invalid token.");
 

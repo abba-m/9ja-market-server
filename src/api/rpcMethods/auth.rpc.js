@@ -73,7 +73,7 @@ const resetPasswordHandler = async ({ resetCode, password }) => {
 
     await user.save();
 
-    return { message: "Password updated successfully" };
+    return { success: true };
   } catch (err) {
     console.log(err);
     throw err;
