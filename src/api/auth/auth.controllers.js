@@ -20,13 +20,12 @@ exports.createUserHandler = async function (req, res) {
     if (existingUser)
       return constructError(res, 400, "Bad Request", "User with this email already exists.");
 
-    const hashedPass = await bcrypt.hash(password, 10);
     const user = User.build({
       email,
       phone,
       firstName,
       lastName,
-      password: hashedPass,
+      password,
     });
 
     const savedUser = await user.save();
