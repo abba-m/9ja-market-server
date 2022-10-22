@@ -9,8 +9,12 @@ const { validatePostReq, createPostSlug } = require("../../utils/posts.util");
 
 //get all post
 exports.getAllPosts = async (req, res) => {
-  //TODO: Add pagination
-  const post = await Post.findAll({ include: [{ model: User, foreignKey: "userId" }] });
+  const { limit = 20, page = 1 } = req.query;
+  const post = await Post.findAll({ 
+    include: [{ model: User, foreignKey: "userId" }], 
+    limit, 
+    offset: (page - 1) * limit 
+  });
 
   return constructRes(res, 200, post);
 };

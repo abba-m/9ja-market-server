@@ -1,4 +1,5 @@
 const { sequelizeConn, DataTypes } = require("../config/db");
+const bcrypt = require("bcryptjs");
 
 const User = sequelizeConn.define("User", {
   userId: {
@@ -29,10 +30,6 @@ const User = sequelizeConn.define("User", {
     },
   },
   phone: {
-    type: DataTypes.STRING,
-    defaultValue: null,
-  },
-  address: {
     type: DataTypes.STRING,
     defaultValue: null,
   },
@@ -85,5 +82,15 @@ const User = sequelizeConn.define("User", {
   freezeTableName: true,
 }
 );
+
+User.beforeSave(async user => {
+  user.email = user.email?.toLowerCase();
+  user.password = await bcrypt.hash(user.password, 10);
+});
+
+User.beforeCreate(async user => {
+  user.email = user.email?.toLowerCase();
+  user.password = await bcrypt.hash(user.password, 10);
+});
 
 module.exports = { User };
