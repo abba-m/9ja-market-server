@@ -9,29 +9,20 @@
         "ecmaVersion": "latest"
     },
     "rules": {
-        "indent": [
-            "error",
-            2
-        ],
-        "linebreak-style": [
-            "error",
-            "unix"
-        ],
-        "quotes": [
-            "error",
-            "double"
-        ],
-        "semi": [
-            "error",
-            "always"
-        ],
-        "no-unused-vars": [
-            1,
-            {
-                "args": "after-used",
-                "argsIgnorePattern": "^_",
-                "varsIgnorePattern": "^_"
-            }
-        ]
+      "indent": ["error", 2],
+      // "linebreak-style": [
+      //     "error",
+      //     "unix"
+      // ],
+      "quotes": ["error", "double"],
+      "semi": ["error", "always"],
+      "no-unused-vars": [
+        1,
+        {
+          "args": "after-used",
+          "argsIgnorePattern": "^_",
+          "varsIgnorePattern": "^_"
+        }
+      ]
     }
 }

@@ -43,6 +43,7 @@
     "random-number-csprng": "^1.0.2",
     "sequelize": "^6.19.0",
     "sequelize-cli": "^6.4.1",
+    "socket.io": "^4.5.3",
     "streamifier": "^0.1.1",
     "uid": "^2.0.0",
     "uuid": "^8.3.2"
