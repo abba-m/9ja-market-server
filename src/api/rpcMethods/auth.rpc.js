@@ -85,6 +85,7 @@ const getUserById = async ({ userId }) => {
   
   return User.findOne({
     where: { userId },
+    attributes: { exclude: ["password"] },
     include: [{
       model: UserAddress,
       foreignKey: "userId",
