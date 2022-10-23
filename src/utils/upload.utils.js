@@ -4,6 +4,7 @@ const streamifier = require("streamifier");
 const uploadImagesToCloud = async (files) => {
   let result;
 
+  // if files is not an array
   if (null == files.length) {
     result = await streamUpload(files.buffer);
     return result;

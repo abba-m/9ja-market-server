@@ -12,16 +12,26 @@ router.get("/", PostController.getAllPosts);
 
 router.get("/me", isAuth, PostController.getPostByMe);
 
-//get post by userId
+//get posts of user
 router.get("/user/:id", PostController.getPostOfUserById);
-
-router.delete("/d/:id", isAuth, PostController.deletePostById);
 
 //get post by slug
 router.get("/:slug", PostController.getPostBySlug);
 
+
+/** POST REQS */
+
+// create post
 router.post("/", isAuth, fileUpload.array("images", 12), PostController.createPostHandler);
 
-router.put("/u/:id", isAuth, PostController.editPostById);
+/** DELETE REQS */
+
+// delete post
+router.delete("/:id", isAuth, PostController.deletePost);
+
+/** PUT REQS */
+
+// edit post
+router.put("/:id", isAuth, PostController.editPost);
 
 module.exports = router;

@@ -94,41 +94,34 @@ exports.getPostOfUserById = async (req, res) => {
   }
 };
 
-exports.deletePostById = async (req, res) => {
+exports.deletePost = async (req, res) => {
   const postId = req.params.id;
 
   try {
-    await Post.destroy({ where: { postId } });
+    await Post.destroy({ 
+      where: { postId, userId: req.user?.userId }
+    });
 
-    constructRes(res, 204, { message: "success" });
+    constructRes(res, 204, { success: true });
   } catch (err) {
     constructError(res);
-    console.log(err);
+    console.log("[Error deleting post]:", err);
   }
 };
 
-exports.editPostById = async (req, res) => {
+exports.editPost = async (req, res) => {
   const postId = req.params.id;
+  const userId = req.user?.userId;
   const data = req.body;
 
   try {
+    delete data?.images;
+
+    await Post.update(data, {
+      where: { userId, postId }
+    });
+
     const post = await Post.findOne({ where: { postId } });
-
-    if (!post) {
-      return constructError(res, 400, "Bad request", "No post found");
-    }
-
-    const keysToUpdate = Object.keys(data);
-    const postKeys = Object.keys(post.dataValues);
-
-    for (let i = 0; i < keysToUpdate.length; i++) {
-      const current = keysToUpdate[i];
-      if (postKeys.includes(current)) {
-        post[current] = data[current];
-      }
-    }
-
-    await post.save();
 
     constructRes(res, 200, post);
   } catch (err) {
