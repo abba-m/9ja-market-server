@@ -1,4 +1,6 @@
 const Mailjet = require("node-mailjet");
+const { Chat } = require("../models");
+const { Op } = require("sequelize");
 
 const normalizePort = (val) => {
   var port = parseInt(val, 10);
@@ -53,8 +55,37 @@ const getResetCodeExpireTime = () => {
   return new Date(new Date().getTime() + 300000);
 };
 
+const findOrCreateRoom = async (userOne, userTwo) => {
+  const room = await Chat.findOne({
+    where: {
+      [Op.or]: [
+        { userOne, userTwo },
+        { userOne: userTwo, userTwo: userOne },
+      ],
+    },
+  });
+
+  if (room) return room;
+
+  return Chat.create({
+    userOne, userTwo,
+  });
+};
+
+const getUserRoomIds = async (userId) => {
+  const rooms = await Chat.findAll({
+    where: {
+      [Op.or]: [{ userOne: userId }, { userTwo: userId }],
+    },
+  });
+
+  return rooms.map(({ chatId }) => chatId);
+};
+
 module.exports = {
   normalizePort,
   sendMail,
   getResetCodeExpireTime,
+  findOrCreateRoom,
+  getUserRoomIds,
 };

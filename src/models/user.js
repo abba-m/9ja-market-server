@@ -45,6 +45,10 @@ const User = sequelizeConn.define("User", {
     type: DataTypes.BOOLEAN,
     defaultValue: false,
   },
+  lastSeen: {
+    type: DataTypes.DATE,
+    defaultValue: null,
+  },
   blocked: {
     type: DataTypes.BOOLEAN,
     defaultValue: false,
