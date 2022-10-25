@@ -57,7 +57,7 @@ socketIO.use(async (socket, next) => {
     const room = await findOrCreateRoom(socket["userId"], recipientId);
     
     const data = {
-      message,
+      text: message,
       senderId: socket["userId"],
       recipientId,
       chatId: room.chatId,

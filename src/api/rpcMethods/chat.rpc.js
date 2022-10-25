@@ -1,8 +1,8 @@
 const { User, UserAddress, Message, Chat } = require("../../models");
 const { rpcServer } = require("../../services/rpcServer");
+const { findOrCreateRoom, getTimeInPast } = require("../../utils/utils");
 const { Op } = require("sequelize");
 const { OnlineUsersStore } = require("../../utils/onlineUsersStorage");
-
 
 const getUserChats = async (_, { user = {} }) => {
   const { userId } = user;
@@ -12,11 +12,14 @@ const getUserChats = async (_, { user = {} }) => {
 
   return Chat.findAll({
     where: {
-      [Op.or]: [{
-        userOne: userId,
-      }, {
-        userTwo: userId,
-      }]
+      [Op.or]: [
+        {
+          userOne: userId,
+        },
+        {
+          userTwo: userId,
+        },
+      ],
     },
     include: [
       {
@@ -26,7 +29,7 @@ const getUserChats = async (_, { user = {} }) => {
         limit: 1,
         required: true,
       },
-    ]
+    ],
   });
 };
 
@@ -35,6 +38,8 @@ const getUserOnline = async ({ recipientId }, { user = {} }) => {
   if (!userId) {
     throw new Error("Access denied");
   }
+
+  if (!recipientId) return;
 
   const found = await User.findOne({
     where: { userId: recipientId },
@@ -50,8 +55,24 @@ const getUserOnline = async ({ recipientId }, { user = {} }) => {
   return { isOnline, user: found };
 };
 
+const getChatMessages = async ({ recipientId }, { user = {} }) => {
+  const { userId } = user;
+
+  if (!userId) throw new Error("Access denied");
+
+  const room = await findOrCreateRoom(recipientId, userId);
+
+  const messages = await Message.findAll({
+    where: { chatId: room.chatId },
+    [Op.between]: [getTimeInPast("3d"), new Date()],
+    order: [["createdAt", "ASC"]],
+  });
+
+  return messages;
+};
+
 rpcServer.addMethod("getUserChats", getUserChats);
 rpcServer.addMethod("getUserOnline", getUserOnline);
-// rpcServer.addMethod("getUserById", getUserById);
+rpcServer.addMethod("getChatMessages", getChatMessages);
 
 
