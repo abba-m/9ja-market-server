@@ -21,7 +21,6 @@ const socketIO = require("socket.io")(httpServer, {
  */
 
 socketIO.use(async (socket, next) => {
-  console.log("[socket:authenticating]:", { socketId: socket.id, userId: socket["userId"] });
 
   try {
     if (
@@ -34,16 +33,16 @@ socketIO.use(async (socket, next) => {
 
       if (userData?.userId) socket["userId"] = userData.userId;
 
-      console.log("[socket:authentication-successful]", {
-        socketId: socket.id,
-        userId: socket["userId"],
-      });
+      // console.log("[socket:authentication-successful]", {
+      //   socketId: socket.id,
+      //   userId: socket["userId"],
+      // });
       next();
     } else {
       next();
     }
   } catch (error) {
-    console.error("[socket:authentication-error]:", {
+    console.error("🔥[socket:authentication-error]:", {
       socketId: socket.id,
       userId: socket["userId"],
       error,
@@ -51,16 +50,26 @@ socketIO.use(async (socket, next) => {
     next(error);
   }
 }).on("connection", (socket) => {
+  
   socket.broadcast.emit("user:connect", { userId: socket["userId"] });
-  socket.on("message:send-message", async ({ recipientId, message }) => {
+  OnlineUsersStore.set(socket["userId"], socket.id);
+  socket.broadcast.emit("user:new-user-online", { userId: socket["userId"] });
+
+  socket.on("message:send-message", async ({ recipientId, text, createdAt }) => {
     const recipientSocketId = OnlineUsersStore.get(recipientId);
     const room = await findOrCreateRoom(socket["userId"], recipientId);
+
+    if (!text) {
+      console.log("[socket][send-message-failed]:", { recipientId, text, createdAt});
+      return;
+    }
     
     const data = {
-      text: message,
+      text,
       senderId: socket["userId"],
       recipientId,
       chatId: room.chatId,
+      createdAt,
     };
     const resp = await Message.create(data);
 
@@ -97,11 +106,9 @@ socketIO.use(async (socket, next) => {
 
     socket.join(conversationIds);
     socket["chats"] = conversationIds;
-    socket.broadcast.emit("user:new-user-online", { userId: socket["userId"] });
   });
 
   socket.on("disconnect", () => {
-    console.log(`🔥${socket.id} disconnected`);
     OnlineUsersStore.delete(socket["userId"]);
     updateUserLastSeen(socket["userId"]);
     socket.broadcast.emit("user:disconnect", { userId: socket["userId"] });
