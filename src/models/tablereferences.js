@@ -1,6 +1,8 @@
 const { User } = require("./user");
 const { Post } = require("./post");
 const { UserAddress } = require("./userAddress");
+const { Chat } = require("./chat");
+const { Message } = require("./message");
 
 User.hasMany(Post, {
   foreignKey: "userId",
@@ -16,4 +18,12 @@ UserAddress.belongsTo(User, {
 
 User.hasMany(UserAddress, {
   foreignKey: "userId",
+});
+
+Chat.hasMany(Message, {
+  foreignKey: "chatId",
+});
+
+Message.belongsTo(Chat, {
+  foreignKey: "chatId",
 });

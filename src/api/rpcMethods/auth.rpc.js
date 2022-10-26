@@ -1,4 +1,4 @@
-const { User } = require("../../models");
+const { User, UserAddress } = require("../../models");
 const bcrypt = require("bcryptjs");
 const { sendMail } = require("../../utils/utils");
 const { resetPasswordEmail } = require("../../utils/emailTemplates/resetPass.email");
@@ -80,7 +80,21 @@ const resetPasswordHandler = async ({ resetCode, password }) => {
   }
 };
 
+const getUserById = async ({ userId }) => {
+  if (!userId) return null;
+  
+  return User.findOne({
+    where: { userId },
+    attributes: { exclude: ["password"] },
+    include: [{
+      model: UserAddress,
+      foreignKey: "userId",
+    }]
+  });
+};
+
 rpcServer.addMethod("getPasswordResetCode", getPasswordResetCodeHandler);
 rpcServer.addMethod("resetPassword", resetPasswordHandler);
+rpcServer.addMethod("getUserById", getUserById);
 
 

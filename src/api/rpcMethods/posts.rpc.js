@@ -38,6 +38,13 @@ const deletePost = async ({ postId }, { user = {} }) => {
   }
 };
 
+const getPostOfUserById = async ({ userId }) => {
+  if (!userId) throw new Error("UserId is undefined");
+
+  return Post.findAll({ where: { userId } });
+};
+
 rpcServer.addMethod("getUserPostsCount", getUserPostsCount);
 rpcServer.addMethod("editPost", editPost);
 rpcServer.addMethod("deletePost", deletePost);
+rpcServer.addMethod("getPostOfUserById", getPostOfUserById);
