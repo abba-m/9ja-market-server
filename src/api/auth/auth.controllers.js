@@ -8,6 +8,9 @@ const { resetPasswordEmail } = require("../../utils/emailTemplates/resetPass.ema
 const { getResetCodeExpireTime } = require("../../utils/utils");
 const randNum = require("random-number-csprng");
 
+const genAuthToken = (userId) => jwt.sign({ userId }, process.env.JWT_SECRET, {
+  expiresIn: "6m",
+});
 
 exports.createUserHandler = async function (req, res) {
   const { email, firstName, lastName, password, phone } = req.body;
@@ -46,9 +49,7 @@ exports.createUserHandler = async function (req, res) {
 
     const userWithoutPassword = await User.findOne({ where: { userId: savedUser.userId }, attributes: { exclude: ["password"] } });
 
-    const token = jwt.sign({ userId: savedUser.userId }, process.env.JWT_SECRET, {
-      expiresIn: "2d",
-    });
+    const token = genAuthToken(savedUser.userId);
 
     return constructRes(res, 201, { jwt: token, user: userWithoutPassword });
   } catch (err) {
@@ -80,9 +81,7 @@ exports.loginHandler = async function (req, res) {
 
     const userWithoutPassword = await User.findOne({ where: { userId: user.userId }, attributes: { exclude: ["password"] } });
 
-    const token = await jwt.sign({ userId: user.userId }, process.env.JWT_SECRET, {
-      expiresIn: "2d",
-    });
+    const token = genAuthToken(user.userId);
 
     return constructRes(res, 200, { jwt: token, user: userWithoutPassword });
   } catch (err) {
