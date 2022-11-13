@@ -1,7 +1,7 @@
 const { Post } = require("../../models");
 const { rpcServer } = require("../../services/rpcServer");
 
-
+// Remove on server and client
 const getUserPostsCount = async (_, { user = {} }) => {
   const count = await Post.count({
     where: { userId: user.userId }
@@ -44,7 +44,16 @@ const getPostOfUserById = async ({ userId }) => {
   return Post.findAll({ where: { userId } });
 };
 
+const getLatestPosts = async () => {
+  return Post.findAll({
+    order: [["createdAt", "DESC"]],
+    limit: 10,
+  });
+};
+
+
 rpcServer.addMethod("getUserPostsCount", getUserPostsCount);
 rpcServer.addMethod("editPost", editPost);
 rpcServer.addMethod("deletePost", deletePost);
 rpcServer.addMethod("getPostOfUserById", getPostOfUserById);
+rpcServer.addMethod("getLatestPosts", getLatestPosts);

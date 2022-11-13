@@ -21,6 +21,15 @@ const UserAddress = sequelizeConn.define("UserAddress", {
     defaultValue: null,
   },
 
+  fullAddress: {
+    type: DataTypes.VIRTUAL(DataTypes.TEXT, [
+      "street", "city", "state", "country"
+    ]),
+    get() {
+      return `${this.street}, ${this.city}, ${this.state}. ${this.country}`;
+    },
+  },
+
   city: {
     type: DataTypes.STRING,
     defaultValue: null,
@@ -29,6 +38,11 @@ const UserAddress = sequelizeConn.define("UserAddress", {
   state: {
     type: DataTypes.STRING,
     defaultValue: null,
+  },
+
+  country: {
+    type: DataTypes.STRING,
+    defaultValue: "Nigeria",
   },
 
   zipcode: {

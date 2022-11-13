@@ -10,13 +10,32 @@ const { validatePostReq, createPostSlug } = require("../../utils/posts.util");
 //get all post
 exports.getAllPosts = async (req, res) => {
   const { limit = 20, page = 1 } = req.query;
-  const post = await Post.findAll({ 
-    include: [{ model: User, foreignKey: "userId" }], 
-    limit, 
-    offset: (page - 1) * limit 
-  });
+  
+  try {
+    const posts = await Post.findAll({ 
+      include: [{ model: User, foreignKey: "userId" }], 
+      limit, 
+      offset: (Number(page) - 1) || 0 * limit 
+    });
 
-  return constructRes(res, 200, post);
+    const hasNext = await Post.findAndCountAll({
+      limit,
+      offset: Number(page) * limit
+    });
+    
+
+    const data = {
+      posts,
+      hasNextPage: hasNext ? true : false,
+      hasPreviousPage: page > 1 ? true : false,
+      nextPage: hasNext ?  Number(page) + 1 : page,
+    };
+
+    return constructRes(res, 200, data);
+  } catch (err) {
+    console.log("[GET_ALL_POST_ERR]:", err);
+    constructError(res, 400, err);
+  }
 };
 
 //create post

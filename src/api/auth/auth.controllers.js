@@ -8,9 +8,7 @@ const { resetPasswordEmail } = require("../../utils/emailTemplates/resetPass.ema
 const { getResetCodeExpireTime } = require("../../utils/utils");
 const randNum = require("random-number-csprng");
 
-const genAuthToken = (userId) => jwt.sign({ userId }, process.env.JWT_SECRET, {
-  expiresIn: "6m",
-});
+const genAuthToken = (userId) => jwt.sign({ userId }, process.env.JWT_SECRET);
 
 exports.createUserHandler = async function (req, res) {
   const { email, firstName, lastName, password, phone } = req.body;
