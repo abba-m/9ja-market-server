@@ -67,7 +67,7 @@ const resetPasswordHandler = async ({ resetCode, password }) => {
   }
 
   try {
-    user.password = await bcrypt.hash(password, 10);
+    user.password = password;
     user.passwordResetCode = null;
     user.expiresIn = null;
 
@@ -93,8 +93,50 @@ const getUserById = async ({ userId }) => {
   });
 };
 
+/**Change Password */
+const changePassword = async ({ password, newPassword }, { user = {} }) => {
+  const userId = user.userId;
+  const response = {
+    success: false,
+    message: "",
+  };
+
+  if (!userId) {
+    response.message = "Please login and try again";
+    return response;
+  }
+
+  if (!password || !newPassword) {
+    response.message = "Old and New password must be provided";
+    return response;
+  }
+
+  try {
+    const user = await User.findByPk(userId);
+
+    const passwordMatch = await bcrypt.compare(password, user.password);
+
+    if (!passwordMatch) {
+      response.message = "Incorrect password.";
+      return response;
+    }
+
+    user.password = newPassword;
+    await user.save();
+
+    response.success = true;
+    response.message = "Password updated";
+
+    return response;
+  } catch (err) {
+    console.log("[Change_Password_Error]:", err);
+    response.error = err.toJSON();
+    return response;
+  }
+};
+
 rpcServer.addMethod("getPasswordResetCode", getPasswordResetCodeHandler);
 rpcServer.addMethod("resetPassword", resetPasswordHandler);
 rpcServer.addMethod("getUserById", getUserById);
-
+rpcServer.addMethod("changePassword", changePassword);
 

@@ -183,4 +183,3 @@ exports.updatePasswordHandler = async (req, res) => {
     constructError(res);
   }
 };
-
