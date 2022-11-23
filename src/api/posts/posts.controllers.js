@@ -4,36 +4,36 @@ const { User } = require("../../models/user");
 const { constructRes, constructError } = require("../../utils/network.utils");
 const { uploadImagesToCloud } = require("../../utils/upload.utils");
 const { validatePostReq, createPostSlug } = require("../../utils/posts.util");
+const { createLogger } = require("../../utils/utils");
 
-
+const debug = createLogger("PostController");
 
 //get all post
 exports.getAllPosts = async (req, res) => {
   const { limit = 20, page = 1 } = req.query;
-  
+
   try {
-    const posts = await Post.findAll({ 
-      include: [{ model: User, foreignKey: "userId" }], 
-      limit, 
-      offset: (Number(page) - 1) || 0 * limit 
+    const posts = await Post.findAll({
+      include: [{ model: User, foreignKey: "userId" }],
+      limit,
+      offset: Number(page) - 1 || 0 * limit,
     });
 
     const hasNext = await Post.findAndCountAll({
       limit,
-      offset: Number(page) * limit
+      offset: Number(page) * limit,
     });
-    
 
     const data = {
       posts,
       hasNextPage: hasNext ? true : false,
       hasPreviousPage: page > 1 ? true : false,
-      nextPage: hasNext ?  Number(page) + 1 : page,
+      nextPage: hasNext ? Number(page) + 1 : page,
     };
 
     return constructRes(res, 200, data);
   } catch (err) {
-    console.log("[GET_ALL_POST_ERR]:", err);
+    debug.error("[GET_ALL_POST_ERR]:", err);
     constructError(res, 400, err);
   }
 };
@@ -53,7 +53,7 @@ exports.createPostHandler = async (req, res) => {
     const result = await uploadImagesToCloud(req.files);
 
     if (result) {
-      const imageUrls = result.map(obj => obj.secure_url);
+      const imageUrls = result.map((obj) => obj.secure_url);
       data.images = imageUrls.join(",");
     }
 
@@ -62,12 +62,10 @@ exports.createPostHandler = async (req, res) => {
     if (savedPost) {
       return constructRes(res, 201, savedPost);
     }
-
   } catch (err) {
     constructError(res);
-    console.log(err);
+    debug.error(err);
   }
-
 };
 
 exports.getPostBySlug = async (req, res) => {
@@ -76,16 +74,17 @@ exports.getPostBySlug = async (req, res) => {
   try {
     const post = await Post.findOne({
       where: { slug },
-      include: [{
-        model: User,
-        foreignKey: "userId"
-      }]
+      include: [
+        {
+          model: User,
+          foreignKey: "userId",
+        },
+      ],
     });
     return constructRes(res, 200, post);
-
   } catch (err) {
     constructError(res);
-    console.log(err);
+    debug.error(err);
   }
 };
 
@@ -95,7 +94,7 @@ exports.getPostByMe = async (req, res) => {
 
     return constructRes(res, 200, posts);
   } catch (err) {
-    console.log(err);
+    debug.error(err);
     constructError(res);
   }
 };
@@ -109,7 +108,7 @@ exports.getPostOfUserById = async (req, res) => {
     return constructRes(res, 200, posts);
   } catch (err) {
     constructError(res);
-    console.log(err);
+    debug.error(err);
   }
 };
 
@@ -117,14 +116,14 @@ exports.deletePost = async (req, res) => {
   const postId = req.params.id;
 
   try {
-    await Post.destroy({ 
-      where: { postId, userId: req.user?.userId }
+    await Post.destroy({
+      where: { postId, userId: req.user?.userId },
     });
 
     constructRes(res, 204, { success: true });
   } catch (err) {
     constructError(res);
-    console.log("[Error deleting post]:", err);
+    debug.error("[Error deleting post]:", err);
   }
 };
 
@@ -137,7 +136,7 @@ exports.editPost = async (req, res) => {
     delete data?.images;
 
     await Post.update(data, {
-      where: { userId, postId }
+      where: { userId, postId },
     });
 
     const post = await Post.findOne({ where: { postId } });
@@ -145,6 +144,6 @@ exports.editPost = async (req, res) => {
     constructRes(res, 200, post);
   } catch (err) {
     constructError(res);
-    console.log(err);
+    debug.error(err);
   }
 };

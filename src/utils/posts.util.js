@@ -1,7 +1,7 @@
-const { uid } = require("uid");
+import { uid } from "uid";
 //const { constructError } = require("./network.utils")
 
-const validatePostReq = (req) => {
+export const validatePostReq = (req) => {
   const data = JSON.parse(req.body.data);
   let message = "";
 
@@ -36,9 +36,7 @@ const validatePostReq = (req) => {
   return 0;
 };
 
-const createPostSlug = (title) => {
+export const createPostSlug = (title) => {
   const str = title.split(" ").join("-");
   return `${str}-${uid(6)}`;
 };
-
-module.exports = { validatePostReq, createPostSlug };

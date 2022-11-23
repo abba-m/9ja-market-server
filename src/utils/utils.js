@@ -1,9 +1,10 @@
-const Mailjet = require("node-mailjet");
-const { Chat } = require("../models");
-const { Op } = require("sequelize");
+import Mailjet from "node-mailjet";
+import { Chat } from "../models";
+import { Op } from "sequelize";
+import chalk from "chalk";
 
-const normalizePort = (val) => {
-  var port = parseInt(val, 10);
+export const normalizePort = (val) => {
+  const port = parseInt(val, 10);
 
   if (isNaN(port)) {
     // named pipe
@@ -18,44 +19,53 @@ const normalizePort = (val) => {
   return false;
 };
 
-const _emailText = "Lorem ipsum dolor sit amet consectetur adipiscing elit nam, class dictumst fermentum egestas platea elementum dui inceptos, eleifend nostra nascetur congue eu malesuada euismod. Fringilla eleifend";
+const _emailText = `Lorem ipsum dolor sit amet consectetur adipiscing elit nam, 
+  class dictumst fermentum egestas platea elementum dui inceptos, 
+  eleifend nostra nascetur congue eu malesuada euismod. Fringilla eleifend`;
 
 const _emailHtml = `
     <h5>The Big Bang Theory</h5>
-    <p>Lorem ipsum dolor sit amet consectetur adipiscing elit nam, class dictumst fermentum egestas platea elementum dui inceptos, eleifend nostra nascetur congue eu malesuada euismod. Fringilla eleifend<p>
+    <p>Lorem ipsum dolor sit amet consectetur 
+    adipiscing elit nam, class dictumst fermentum 
+    egestas platea elementum dui inceptos, eleifend 
+    nostra nascetur congue eu malesuada euismod. Fringilla eleifend<p>
   `;
 
-const mailjet = Mailjet.apiConnect(process.env.MAILJET_API_KEY,
-  process.env.MAILJET_API_SECRET);
+const mailjet = Mailjet.apiConnect(
+  `${process.env.MAILJET_API_KEY}`,
+  `${process.env.MAILJET_API_SECRET}`,
+);
 
-const sendMail = async (email, subject, text, html) => {
-  const request = await mailjet
-    .post("send", { "version": "v3.1" })
-    .request({
-      "Messages": [{
-        "From": {
-          "Email": process.env.USER_EMAIL,
-          "Name": "9ja-Market",
+export const sendMail = async (email, subject, text, html) => {
+  const request = await mailjet.post("send", { version: "v3.1" }).request({
+    Messages: [
+      {
+        From: {
+          Email: process.env.USER_EMAIL,
+          Name: "9ja-Market",
         },
-        "To": [{
-          "Email": email,
-        }],
-        "Subject": subject,
-        "TextPart": text,
-        "HTMLPart": html,
-      }]
-    });
+        To: [
+          {
+            Email: email,
+          },
+        ],
+        Subject: subject,
+        TextPart: text,
+        HTMLPart: html,
+      },
+    ],
+  });
 
-  console.log("[Email Res]:", request.body);
+  createLogger("SendEmail").info(request.body);
   return request;
 };
 
-const getResetCodeExpireTime = () => {
+export const getResetCodeExpireTime = () => {
   //5 mins from current time
   return new Date(new Date().getTime() + 300000);
 };
 
-const findOrCreateRoom = async (userOne, userTwo) => {
+export const findOrCreateRoom = async (userOne, userTwo) => {
   const room = await Chat.findOne({
     where: {
       [Op.or]: [
@@ -68,11 +78,12 @@ const findOrCreateRoom = async (userOne, userTwo) => {
   if (room) return room;
 
   return Chat.create({
-    userOne, userTwo,
+    userOne,
+    userTwo,
   });
 };
 
-const getTimeInFuture = (timeFromNow) => {
+export const traverseTime = (timeFromNow) => {
   const validUnits = ["m", "d"];
   if (typeof timeFromNow !== "string") {
     throw new Error("Invalid params for getting expiry date");
@@ -85,12 +96,13 @@ const getTimeInFuture = (timeFromNow) => {
     throw new Error("Invalid params for getting expiry date");
   }
 
-  const timeInMilliSeconds = unit === "m" ? time * 60 * 1000 : time * 86400 * 1000;
+  const timeInMilliSeconds =
+    unit === "m" ? time * 60 * 1000 : time * 86400 * 1000;
 
   return new Date(new Date().getTime() + timeInMilliSeconds);
 };
 
-const getTimeInPast = (timeFromNow) => {
+export const backDate = (timeFromNow) => {
   const validUnits = ["m", "d"];
   if (typeof timeFromNow !== "string") {
     throw new Error("Invalid params for getting expiry date");
@@ -103,12 +115,13 @@ const getTimeInPast = (timeFromNow) => {
     throw new Error("Invalid params for getting expiry date");
   }
 
-  const timeInMilliSeconds = unit === "m" ? time * 60 * 1000 : time * 86400 * 1000;
+  const timeInMilliSeconds =
+    unit === "m" ? time * 60 * 1000 : time * 86400 * 1000;
 
   return new Date(new Date().getTime() - timeInMilliSeconds);
 };
 
-const getUserRoomIds = async (userId) => {
+export const getUserRoomIds = async (userId) => {
   const rooms = await Chat.findAll({
     where: {
       [Op.or]: [{ userOne: userId }, { userTwo: userId }],
@@ -118,12 +131,24 @@ const getUserRoomIds = async (userId) => {
   return rooms.map(({ chatId }) => chatId);
 };
 
-module.exports = {
-  normalizePort,
-  sendMail,
-  getResetCodeExpireTime,
-  getTimeInFuture,
-  getTimeInPast,
-  findOrCreateRoom,
-  getUserRoomIds,
+export const createLogger = (level) => {
+  const printError = chalk.bold.red;
+  const printInfo = chalk.blue;
+
+  const { log: Log } = console;
+
+  const error = (value) =>
+    process.env.NODE_ENV === "development" &&
+    Log(printError(`[${level}]: ${value}`));
+  const info = (value) =>
+    process.env.NODE_ENV === "development" &&
+    Log(printInfo(`[${level}]: ${value}`));
+  const log = (value) =>
+    process.env.NODE_ENV === "development" && Log(level, value);
+
+  return {
+    info,
+    error,
+    log,
+  };
 };

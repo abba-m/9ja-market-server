@@ -1,8 +1,10 @@
-const { User, Message, Chat } = require("../../models");
-const { rpcServer } = require("../../services/rpcServer");
-const { findOrCreateRoom, getTimeInPast } = require("../../utils/utils");
-const { Op } = require("sequelize");
-const { OnlineUsersStore } = require("../../utils/onlineUsersStorage");
+import { User, Message, Chat } from "../../models";
+import { rpcServer } from "../../services/rpcServer";
+import { findOrCreateRoom, backDate, createLogger } from "../../utils/utils";
+import { Op } from "sequelize";
+import { OnlineUsersStore } from "../../utils/onlineUsersStorage";
+
+const debug = createLogger("ChatRPC");
 
 const getUserChats = async (_, { user = {} }) => {
   const { userId } = user;
@@ -33,7 +35,7 @@ const getUserChats = async (_, { user = {} }) => {
       ],
     });
   } catch (err) {
-    console.log("[getUserChats][ERR]:", err);
+    debug.error("[getUserChats][ERR]:", err);
   }
 };
 
@@ -59,7 +61,7 @@ const getUserOnline = async ({ recipientId }, { user = {} }) => {
 
     return { isOnline, user: found };
   } catch (err) {
-    console.log("[getUserOnline][ERR]:", err);
+    debug.error("[getUserOnline][ERR]:", err);
   }
 };
 
@@ -74,18 +76,16 @@ const getChatMessages = async ({ recipientId }, { user = {} }) => {
 
     const messages = await Message.findAll({
       where: { chatId: room.chatId },
-      [Op.between]: [getTimeInPast("3d"), new Date()],
+      [Op.between]: [backDate("3d"), new Date()],
       order: [["createdAt", "ASC"]],
     });
 
     return messages;
   } catch (err) {
-    console.log("[getChatMessages][ERR]:", err);
+    debug.error("[getChatMessages][ERR]:", err);
   }
 };
 
 rpcServer.addMethod("getUserChats", getUserChats);
 rpcServer.addMethod("getUserOnline", getUserOnline);
 rpcServer.addMethod("getChatMessages", getChatMessages);
-
-

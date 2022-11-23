@@ -1,8 +1,8 @@
-const { User } = require("./user");
-const { Post } = require("./post");
-const { UserAddress } = require("./userAddress");
-const { Chat } = require("./chat");
-const { Message } = require("./message");
+import { User } from "./user";
+import { Post } from "./post";
+import { UserAddress } from "./userAddress";
+import { Chat } from "./chat";
+import { Message } from "./message";
 
 User.hasMany(Post, {
   foreignKey: "userId",

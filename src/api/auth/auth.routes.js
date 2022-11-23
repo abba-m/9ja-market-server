@@ -1,23 +1,29 @@
-const express = require("express");
+import express from "express";
+import {
+  createUserHandler,
+  loginHandler,
+  sendResetPasswordCodeHandler,
+  updatePasswordHandler,
+} from "./auth.controllers";
+//import isAuth from  "../../middlewares/auth.middlewares";
+
 const router = express.Router();
-const AuthController = require("./auth.controllers");
-//const isAuth = require("../../middlewares/auth.middlewares");
 
 router.get("/", (_, res) => res.send("Hello Auth Route"));
 
 //Create user router
-router.post("/register", AuthController.createUserHandler);
+router.post("/register", createUserHandler);
 
 //User sign-in route
-router.post("/login", AuthController.loginHandler);
+router.post("/login", loginHandler);
 
 // send reset link route
-router.post("/reset-password", AuthController.sendResetPasswordCodeHandler);
+router.post("/reset-password", sendResetPasswordCodeHandler);
 
 // verify password reset code and change password
-router.post("/update-password", AuthController.updatePasswordHandler);
+router.post("/update-password", updatePasswordHandler);
 
 //validate user route
 //router.get("/me", isAuth, authController.userValidationHandler);
 
-module.exports = router;
+export default router;

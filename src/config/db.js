@@ -1,6 +1,6 @@
-const { Sequelize, DataTypes } = require("sequelize");
-const path = require("path");
-const { config } = require("dotenv");
+import { Sequelize, DataTypes } from "sequelize";
+import path from "path";
+import { config } from "dotenv";
 
 config({
   path: path.join(__dirname, "../../.env"),
@@ -24,4 +24,4 @@ const sequelizeConn = new Sequelize(dbName, dbUserName, dbPassword, {
     } */
 });
 
-module.exports = { sequelizeConn, DataTypes };
+export { sequelizeConn, DataTypes };

@@ -1,50 +1,50 @@
-const { sequelizeConn, DataTypes } = require("../config/db");
+import { sequelizeConn, DataTypes } from "../config/db";
 
-const Message = sequelizeConn.define("Message", {
-  messageId: {
-    type: DataTypes.UUID,
-    defaultValue: DataTypes.UUIDV4,
-    primaryKey: true,
-    allowNull: false,
-  },
-  chatId: {
-    type: DataTypes.UUID,
-    references: {
-      model: "Chat",
-      key: "chatId",
+export const Message = sequelizeConn.define(
+  "Message",
+  {
+    messageId: {
+      type: DataTypes.UUID,
+      defaultValue: DataTypes.UUIDV4,
+      primaryKey: true,
+      allowNull: false,
+    },
+    chatId: {
+      type: DataTypes.UUID,
+      references: {
+        model: "Chat",
+        key: "chatId",
+      },
+    },
+    senderId: {
+      type: DataTypes.UUID,
+    },
+    recipientId: {
+      type: DataTypes.UUID,
+    },
+    text: {
+      type: DataTypes.TEXT,
+      allowNull: false,
+    },
+    read: {
+      type: DataTypes.BOOLEAN,
+      defaultValue: false,
+    },
+    createdAt: {
+      allowNull: false,
+      type: DataTypes.DATE,
+    },
+    updatedAt: {
+      allowNull: false,
+      type: DataTypes.DATE,
+    },
+    deletedAt: {
+      type: DataTypes.DATE,
+      defaultValue: null,
     },
   },
-  senderId: {
-    type: DataTypes.UUID,
+  {
+    paranoid: true,
+    freezeTableName: true,
   },
-  recipientId: {
-    type: DataTypes.UUID,
-  },
-  text: {
-    type: DataTypes.TEXT,
-    allowNull: false,
-  },
-  read: {
-    type: DataTypes.BOOLEAN,
-    defaultValue: false,
-  },
-  createdAt: {
-    allowNull: false,
-    type: DataTypes.DATE
-  },
-  updatedAt: {
-    allowNull: false,
-    type: DataTypes.DATE
-  },
-  deletedAt: {
-    type: DataTypes.DATE,
-    defaultValue: null,
-  }
-},
-{
-  paranoid: true,
-  freezeTableName: true,
-}
 );
-
-module.exports = { Message };
