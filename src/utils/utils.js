@@ -137,9 +137,14 @@ export const createLogger = (level) => {
 
   const { log: Log } = console;
 
-  const error = (value) =>
+  const error = (value) => {
+    if (typeof value === "object") {
+      value = JSON.stringify(value, null, 2);
+    }
+
     process.env.NODE_ENV === "development" &&
-    Log(printError(`[${level}]: ${value}`));
+      Log(printError(`[${level}]: ${value}`));
+  };
   const info = (value) =>
     process.env.NODE_ENV === "development" &&
     Log(printInfo(`[${level}]: ${value}`));

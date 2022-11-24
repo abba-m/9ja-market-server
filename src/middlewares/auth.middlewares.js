@@ -1,11 +1,11 @@
 import jwt from "jsonwebtoken";
 import { constructError } from "../utils/network.utils";
 
-export const isAuth = (req, res, next) => {
+export const isAuth = async (req, res, next) => {
   const token = req.header("Authorization");
 
   if (!token)
-    return constructError(res, 401, "Unauthorized", "Invalid token.");
+    return constructError(res, 401, "Please login and try again", "");
 
   try {
     const decodedToken = jwt.verify(

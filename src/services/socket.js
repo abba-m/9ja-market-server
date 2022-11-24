@@ -4,7 +4,6 @@ import {
   OnlineUsersStore,
   updateUserLastSeen,
 } from "../utils/onlineUsersStorage";
-import { Message } from "../models";
 import {
   findOrCreateRoom,
   getUserRoomIds,
@@ -20,15 +19,6 @@ const socketIO = require("socket.io")(httpServer, {
   },
 });
 
-/**
- * EVENTS         =>      EMITING DATA            => RECEIVING DATA
- * user:join               Null,                     userId,
- * user:disconnect         Null,                     userId,
- * user:join-room          RecipientId,              userId,
- * message:send-message    [ReceipientId, msg ]        --
- * message:receive-message        --                 MessageModel
- */
-
 socketIO
   .use(async (socket, next) => {
     try {
@@ -42,7 +32,7 @@ socketIO
 
         if (userData?.userId) socket["userId"] = userData.userId;
 
-        // debug.error("[socket:authentication-successful]", {
+        // debug.log("[socket:authentication-successful]", {
         //   socketId: socket.id,
         //   userId: socket["userId"],
         // });
@@ -67,39 +57,6 @@ socketIO
     socket.broadcast.emit("user:new-user-online", {
       userId: socket["userId"],
     });
-
-    socket.on(
-      "message:send-message",
-      async ({ recipientId, text, createdAt }) => {
-        const recipientSocketId = OnlineUsersStore.get(recipientId);
-        const room = await findOrCreateRoom(socket["userId"], recipientId);
-
-        if (!text) {
-          debug.error("[socket][send-message-failed]:", {
-            recipientId,
-            text,
-            createdAt,
-          });
-          return;
-        }
-
-        const data = {
-          text,
-          senderId: socket["userId"],
-          recipientId,
-          chatId: room.chatId,
-          createdAt,
-        };
-        const resp = await Message.create(data);
-
-        if (recipientSocketId) {
-          socketIO
-            .to(recipientSocketId)
-            .emit("action:user-typing", { isTyping: false });
-          socketIO.to(recipientSocketId).emit("message:receive-message", resp);
-        }
-      },
-    );
 
     socket.on("action:typing", ({ recipientId, isTyping = true }) => {
       // const recipientSocketId = OnlineUsersStore.get(userId);
