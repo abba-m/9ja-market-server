@@ -1,11 +1,11 @@
 /**AUTH */
-require("./auth.rpc");
+import "./auth.rpc";
 
 /**POST */
-require("./posts.rpc");
+import "./posts.rpc";
 
 /**CHAT */
-require("./chat.rpc");
+import "./chat.rpc";
 
 /**ADDRESS */
-require("./address.rpc");
+import "./address.rpc";

@@ -8,13 +8,13 @@ module.exports = {
         allowNull: false,
       },
       title: {
-        type: DataTypes.STRING
+        type: DataTypes.STRING,
       },
       description: {
-        type: DataTypes.TEXT
+        type: DataTypes.TEXT,
       },
       price: {
-        type: DataTypes.DECIMAL(12, 2)
+        type: DataTypes.DECIMAL(12, 2),
       },
       category: {
         type: DataTypes.STRING,
@@ -25,7 +25,7 @@ module.exports = {
         unique: true,
       },
       location: {
-        type: DataTypes.STRING
+        type: DataTypes.STRING,
       },
       images: {
         type: DataTypes.TEXT,
@@ -41,11 +41,11 @@ module.exports = {
       },
       createdAt: {
         allowNull: false,
-        type: DataTypes.DATE
+        type: DataTypes.DATE,
       },
       updatedAt: {
         allowNull: false,
-        type: DataTypes.DATE
+        type: DataTypes.DATE,
       },
       deletedAt: {
         type: DataTypes.DATE,
@@ -55,5 +55,5 @@ module.exports = {
   },
   down: (queryInterface) => {
     return queryInterface.dropTable("Post");
-  }
+  },
 };

@@ -1,7 +1,6 @@
-const { User } = require("../models");
+import { User } from "../models";
 
-
-exports.updateUserLastSeen = async (userId) => {
+export const updateUserLastSeen = async (userId) => {
   const lastSeen = new Date().toISOString();
   await User.update({ lastSeen }, { where: { userId } });
 
@@ -26,5 +25,4 @@ function OnlineUsersStorage() {
   };
 }
 
-
-exports.OnlineUsersStore = OnlineUsersStorage();
+export const OnlineUsersStore = OnlineUsersStorage();

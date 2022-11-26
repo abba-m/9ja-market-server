@@ -1,7 +1,12 @@
-const express = require("express");
+import express from "express";
+import { isAuth } from "../../middlewares/auth.middlewares";
+import {
+  changeProfileHandler,
+  meHandler,
+  changePasswordHandler,
+} from "./users.controllers";
+
 const router = express.Router();
-const isAuth = require("../../middlewares/auth.middlewares");
-const { changeProfileHandler, meHandler, changePasswordHandler } = require("./users.controllers");
 
 const multer = require("multer");
 const fileUpload = multer();
@@ -10,8 +15,13 @@ const fileUpload = multer();
 router.get("/me", isAuth, meHandler);
 
 //add / change user profile picture
-router.post("/upload", isAuth, fileUpload.single("avatar"), changeProfileHandler);
+router.post(
+  "/upload",
+  isAuth,
+  fileUpload.single("avatar"),
+  changeProfileHandler,
+);
 
 router.post("/change-password", isAuth, changePasswordHandler);
 
-module.exports = router;
+export default router;

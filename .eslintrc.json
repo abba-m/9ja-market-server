@@ -4,12 +4,29 @@
         "commonjs": true,
         "es2021": true
     },
-    "extends": "eslint:recommended",
+    "extends": [
+      "eslint:recommended",
+      "prettier",
+      "plugin:prettier/recommended"
+    ],
     "parserOptions": {
+        "sourceType": "module",
         "ecmaVersion": "latest"
     },
     "rules": {
       "indent": ["error", 2],
+      "no-console": "error",
+      // "max-len": [
+      //   "error",
+      //   {
+      //     "code": 80,
+      //     "tabWidth": 4,
+      //     "ignoreTrailingComments": true,
+      //     "ignoredLinks": true,
+      //     "ignoreStrings": false
+      //   }
+      // ],
+      "max-len": "error",
       // "linebreak-style": [
       //     "error",
       //     "unix"
@@ -17,7 +34,7 @@
       "quotes": ["error", "double"],
       "semi": ["error", "always"],
       "no-unused-vars": [
-        1,
+        2,
         {
           "args": "after-used",
           "argsIgnorePattern": "^_",

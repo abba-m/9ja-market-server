@@ -1,7 +1,7 @@
 const cloudinary = require("cloudinary").v2;
 const streamifier = require("streamifier");
 
-const uploadImagesToCloud = async (files) => {
+export const uploadImagesToCloud = async (files) => {
   let result;
 
   // if files is not an array
@@ -25,7 +25,7 @@ const uploadImagesToCloud = async (files) => {
 
 const streamUpload = (buffer) => {
   return new Promise((resolve, reject) => {
-    let stream = cloudinary.uploader.upload_stream((err, result) => {
+    const stream = cloudinary.uploader.upload_stream((err, result) => {
       if (result) {
         resolve(result);
       } else {
@@ -36,5 +36,3 @@ const streamUpload = (buffer) => {
     streamifier.createReadStream(buffer).pipe(stream);
   });
 };
-
-module.exports = { uploadImagesToCloud };

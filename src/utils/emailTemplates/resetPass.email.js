@@ -1,7 +1,8 @@
-const resetPasswordEmail = (name, code) => {
+export const resetPasswordEmail = (name, code) => {
   const emailText = `
     Hello ${name}
-    Sorry to know that you have forgotten your password. Find your password reset code below.
+    Sorry to know that you have forgotten your password. 
+    Find your password reset code below.
     *${code}*
 
     Code expires in 3 minutes.
@@ -9,7 +10,8 @@ const resetPasswordEmail = (name, code) => {
 
   const emailHtml = `
   <h5>Hello ${name}, 9jaMarket here.</h5>
-  <p>Sorry to know that you have forgotten your password. Find your password reset code below.
+  <p>Sorry to know that you have forgotten your password. 
+  Find your password reset code below.
   <h3>${code}</h3>
   <br>
   <p style="color:red;">Code expires in 3 minutes.</p>
@@ -21,5 +23,3 @@ const resetPasswordEmail = (name, code) => {
     emailHtml,
   };
 };
-
-module.exports = { resetPasswordEmail };

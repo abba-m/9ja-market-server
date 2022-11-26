@@ -1,15 +1,15 @@
-const jwt = require("jsonwebtoken");
-const { JSONRPCServer, createJSONRPCErrorResponse } = require("json-rpc-2.0");
+import jwt from "jsonwebtoken";
+import { JSONRPCServer, createJSONRPCErrorResponse } from "json-rpc-2.0";
+import { createLogger } from "../utils/utils";
 
-const rpcServer = new JSONRPCServer();
+const debug = createLogger("RPCServerSetup");
 
-const handleRpcResponse = (req, res) => {
+export const rpcServer = new JSONRPCServer();
+
+export const handleRpcResponse = (req, res) => {
   const jsonRPCRequest = req.body;
   const credentials = isAuth(req);
 
-  // server.receive takes a JSON-RPC request and returns a promise of a JSON-RPC response.
-  // It can also receive an array of requests, in which case it may return an array of responses.
-  // Alternatively, you can use server.receiveJSON, which takes JSON string as is (in this case req.body).
   rpcServer.receive(jsonRPCRequest, credentials).then((jsonRPCResponse) => {
     if (jsonRPCResponse) {
       res.json(jsonRPCResponse);
@@ -29,7 +29,10 @@ const isAuth = (req) => {
 
     if (!token) return credentials;
 
-    const decodedToken = jwt.verify(token.split(" ")[1], process.env.JWT_SECRET);
+    const decodedToken = jwt.verify(
+      token.split(" ")[1],
+      process.env.JWT_SECRET,
+    );
 
     if (!decodedToken) return credentials;
 
@@ -38,7 +41,7 @@ const isAuth = (req) => {
 
     return credentials;
   } catch (err) {
-    console.log("authErr[rpcReq]:", err);
+    debug.error(err);
     return { isAuth: false };
   }
 };
@@ -56,8 +59,3 @@ const exceptionMiddleware = async (next, request, serverParams) => {
 };
 
 rpcServer.applyMiddleware(exceptionMiddleware);
-
-module.exports = {
-  handleRpcResponse,
-  rpcServer,
-};

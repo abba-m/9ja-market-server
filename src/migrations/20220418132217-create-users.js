@@ -8,22 +8,22 @@ module.exports = {
         allowNull: false,
       },
       fullName: {
-        type: DataTypes.STRING
+        type: DataTypes.STRING,
       },
       email: {
-        type: DataTypes.STRING
+        type: DataTypes.STRING,
       },
       provider: {
-        type: DataTypes.TEXT
+        type: DataTypes.TEXT,
       },
       phone: {
-        type: DataTypes.STRING
+        type: DataTypes.STRING,
       },
       address: {
         type: DataTypes.STRING,
       },
       password: {
-        type: DataTypes.STRING
+        type: DataTypes.STRING,
       },
       confirmed: {
         type: DataTypes.BOOLEAN,
@@ -46,23 +46,23 @@ module.exports = {
         defaultValue: false,
       },
       avatarUrl: {
-        type: DataTypes.STRING
+        type: DataTypes.STRING,
       },
       createdAt: {
         allowNull: false,
-        type: DataTypes.DATE
+        type: DataTypes.DATE,
       },
       updatedAt: {
         allowNull: false,
-        type: DataTypes.DATE
+        type: DataTypes.DATE,
       },
       deletedAt: {
         type: DataTypes.DATE,
         defaultValue: null,
-      }
+      },
     });
   },
   async down(queryInterface) {
     await queryInterface.dropTable("User");
-  }
+  },
 };

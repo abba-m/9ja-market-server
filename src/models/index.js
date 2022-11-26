@@ -1,9 +1,7 @@
-const { User } = require("./user");
-const { Post } = require("./post");
-const { UserAddress } = require("./userAddress");
-const { Chat } = require("./chat");
-const { Message } = require("./message");
+export { User } from "./user";
+export { Post } from "./post";
+export { UserAddress } from "./userAddress";
+export { Chat } from "./chat";
+export { Message } from "./message";
 
 require("./tablereferences");
-
-module.exports = { User, Post, UserAddress, Chat, Message };

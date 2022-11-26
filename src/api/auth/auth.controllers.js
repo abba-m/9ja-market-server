@@ -1,25 +1,35 @@
-const { User } = require("../../models");
-const bcrypt = require("bcryptjs");
-const jwt = require("jsonwebtoken");
-const { constructError, constructRes } = require("../../utils/network.utils");
-const { userRegistrationEmailObject } = require("../../utils/emailTemplates/userReg.email");
-const { sendMail } = require("../../utils/utils");
-const { resetPasswordEmail } = require("../../utils/emailTemplates/resetPass.email");
-const { getResetCodeExpireTime } = require("../../utils/utils");
-const randNum = require("random-number-csprng");
+/* eslint-disable */
+import { User } from "../../models";
+import bcrypt from "bcryptjs";
+import jwt from "jsonwebtoken";
+import { constructError, constructRes } from "../../utils/network.utils";
+import { userRegistrationEmailObject } from "../../utils/emailTemplates/userReg.email";
+import { sendMail, createLogger } from "../../utils/utils";
+import { resetPasswordEmail } from "../../utils/emailTemplates/resetPass.email";
+import { getResetCodeExpireTime } from "../../utils/utils";
+import randNum from "random-number-csprng";
+
+const debug = createLogger("AuthController");
 
 const genAuthToken = (userId) => jwt.sign({ userId }, process.env.JWT_SECRET);
 
-exports.createUserHandler = async function (req, res) {
+export const createUserHandler = async function (req, res) {
   const { email, firstName, lastName, password, phone } = req.body;
 
   if (!email || !firstName || !lastName || !password)
     return constructError(res, 400, "Bad Request", "All fields are required.");
 
   try {
-    const existingUser = await User.findOne({ where: { email } });
+    const existingUser = await User.findOne({
+      where: { email },
+    });
     if (existingUser)
-      return constructError(res, 400, "Bad Request", "User with this email already exists.");
+      return constructError(
+        res,
+        400,
+        "Bad Request",
+        "User with this email already exists.",
+      );
 
     const user = User.build({
       email,
@@ -37,26 +47,37 @@ exports.createUserHandler = async function (req, res) {
         savedUser.email,
         subject,
         emailText,
-        emailHtml
+        emailHtml,
       );
 
-      if (sent && sent?.accepted) {
-        console.log(`[Email res]: ${sent?.accepted}`);
+      if (sent && sent?.body) {
+        debug.error(`[Email res]: ${sent?.body}`);
       }
     }
 
-    const userWithoutPassword = await User.findOne({ where: { userId: savedUser.userId }, attributes: { exclude: ["password"] } });
+    const userWithoutPassword = await User.findOne({
+      where: { userId: savedUser.userId },
+      attributes: { exclude: ["password"] },
+    });
 
     const token = genAuthToken(savedUser.userId);
 
-    return constructRes(res, 201, { jwt: token, user: userWithoutPassword });
+    return constructRes(res, 201, {
+      jwt: token,
+      user: userWithoutPassword,
+    });
   } catch (err) {
-    constructError(res, 500, "Internal Server Error", "Something went wrong. Please try again later.");
-    console.log(err);
+    constructError(
+      res,
+      500,
+      "Internal Server Error",
+      "Something went wrong. Please try again later.",
+    );
+    debug.error(err);
   }
 };
 
-exports.loginHandler = async function (req, res) {
+export const loginHandler = async function (req, res) {
   const { identifier, password } = req.body;
 
   if (!identifier || !password)
@@ -67,48 +88,84 @@ exports.loginHandler = async function (req, res) {
     });
 
   try {
-    const user = await User.findOne({ where: { email: identifier } });
+    const user = await User.findOne({
+      where: { email: identifier },
+    });
 
     if (!user)
-      return constructError(res, 400, "Bad Request", "Invalid Identifier or password.");
+      return constructError(
+        res,
+        400,
+        "Bad Request",
+        "Invalid Identifier or password.",
+      );
 
     const passwordMatch = await bcrypt.compare(password, user.password);
 
     if (!passwordMatch)
-      return constructError(res, 400, "Bad Request", "Invalid Identifier or password.");
+      return constructError(
+        res,
+        400,
+        "Bad Request",
+        "Invalid Identifier or password.",
+      );
 
-    const userWithoutPassword = await User.findOne({ where: { userId: user.userId }, attributes: { exclude: ["password"] } });
+    const userWithoutPassword = await User.findOne({
+      where: { userId: user.userId },
+      attributes: { exclude: ["password"] },
+    });
 
     const token = genAuthToken(user.userId);
 
-    return constructRes(res, 200, { jwt: token, user: userWithoutPassword });
+    return constructRes(res, 200, {
+      jwt: token,
+      user: userWithoutPassword,
+    });
   } catch (err) {
-    constructError(res, 500, "Internal Server Error", "Something went wrong. Please try again later.");
-    console.log(err);
+    constructError(
+      res,
+      500,
+      "Internal Server Error",
+      "Something went wrong. Please try again later.",
+    );
+    debug.error(err);
   }
 };
 
-exports.userValidationHandler = async function (req, res) {
+export const userValidationHandler = async function (req, res) {
   try {
-    const user = await User.findByPk(req.user.userId, { attributes: { exclude: ["password"] } });
+    const user = await User.findByPk(req.user.userId, {
+      attributes: { exclude: ["password"] },
+    });
     if (!user) throw new Error("User does not exit");
 
     return constructRes(res, 200, user);
   } catch (err) {
-    constructError(res, 500, "Internal Server Error", "Please try again later.");
-    console.log(err);
+    constructError(
+      res,
+      500,
+      "Internal Server Error",
+      "Please try again later.",
+    );
+    debug.error(err);
   }
 };
 
-exports.sendResetPasswordCodeHandler = async (req, res) => {
+export const sendResetPasswordCodeHandler = async (req, res) => {
   const { email } = req.body;
 
-  if (!email) return constructError(res, 400, "Bad request", "Email not provided");
+  if (!email)
+    return constructError(res, 400, "Bad request", "Email not provided");
 
   const user = await User.findOne({ where: { email } });
 
   if (!user) {
-    return constructError(res, 400, "Bad request", "A user with this email does not exist");
+    return constructError(
+      res,
+      400,
+      "Bad request",
+      "A user with this email does not exist",
+    );
   }
 
   //generate reset code { exps after 5 mins }
@@ -120,23 +177,26 @@ exports.sendResetPasswordCodeHandler = async (req, res) => {
     user.expiresIn = codeExpiresIn;
     await user.save();
 
-    const { subject, emailText, emailHtml } = resetPasswordEmail(user.lastName, randd);
+    const { subject, emailText, emailHtml } = resetPasswordEmail(
+      user.lastName,
+      randd,
+    );
     const sent = await sendMail(user.email, subject, emailText, emailHtml);
 
     if (sent) {
-      return constructRes(res, 200, { message: "Password reset code has been sent to your email." });
-    }
-    else {
+      return constructRes(res, 200, {
+        message: "Password reset code has been sent to your email.",
+      });
+    } else {
       return constructError(res);
     }
-
   } catch (err) {
-    console.log(err);
+    debug.error(err);
     constructError(res);
   }
 };
 
-exports.updatePasswordHandler = async (req, res) => {
+export const updatePasswordHandler = async (req, res) => {
   const { resetCode, password } = req.body;
 
   if (!resetCode) {
@@ -150,7 +210,7 @@ exports.updatePasswordHandler = async (req, res) => {
   const user = await User.findOne({
     where: {
       passwordResetCode: resetCode,
-    }
+    },
   });
 
   if (!user) {
@@ -159,7 +219,7 @@ exports.updatePasswordHandler = async (req, res) => {
 
   const codeExpirationtime = new Date(user.expiresIn);
 
-  console.log({ codeExpirationtime });
+  debug.error({ codeExpirationtime });
 
   if (codeExpirationtime < new Date()) {
     user.passwordResetCode = null;
@@ -177,9 +237,11 @@ exports.updatePasswordHandler = async (req, res) => {
 
     await user.save();
 
-    return constructRes(res, 201, { message: "Password updated successfully" });
+    return constructRes(res, 201, {
+      message: "Password updated successfully",
+    });
   } catch (err) {
-    console.log(err);
+    debug.error(err);
     constructError(res);
   }
 };

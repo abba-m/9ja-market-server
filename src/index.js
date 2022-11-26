@@ -1,12 +1,12 @@
-const http = require("http");
-const dotenv = require("dotenv");
-const app = require("./app");
-//const connectDB = require("./config/db")
-const { socketIO } = require("./services/socket");
-const { sequelizeConn } = require("./config/db");
-const { normalizePort } = require("./utils/utils");
-const cloudinary = require("cloudinary").v2;
+import http from "http";
+import dotenv from "dotenv";
+import app from "./app";
+import { socketIO } from "./services/socket";
+import { sequelizeConn } from "./config/db";
+import { normalizePort, createLogger } from "./utils/utils";
+import { v2 as cloudinary } from "cloudinary";
 
+const debug = createLogger("ServerSetup");
 // load env configs
 dotenv.config();
 
@@ -27,6 +27,6 @@ server.listen(PORT, async () => {
   await sequelizeConn.sync();
 
   sequelizeConn.authenticate().then(() => {
-    console.log(`Server running on port: ${PORT}`);
+    debug.info(`Server running on port: ${PORT}`);
   });
 });

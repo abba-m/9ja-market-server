@@ -1,6 +1,7 @@
-const express = require("express");
+import express from "express";
+import { isAuth } from "../../middlewares/auth.middlewares";
+
 const router = express.Router();
-const isAuth = require("../../middlewares/auth.middlewares");
 
 const multer = require("multer");
 const fileUpload = multer();
@@ -12,17 +13,25 @@ router.get("/", PostController.getAllPosts);
 
 router.get("/me", isAuth, PostController.getPostByMe);
 
+router.post("/test", (_, res) => {
+  res.json({ postTest: "success" });
+});
+
 //get posts of user
 router.get("/user/:id", PostController.getPostOfUserById);
 
 //get post by slug
 router.get("/:slug", PostController.getPostBySlug);
 
-
 /** POST REQS */
 
 // create post
-router.post("/", isAuth, fileUpload.array("images", 12), PostController.createPostHandler);
+router.post(
+  "/",
+  isAuth,
+  fileUpload.array("images", 12),
+  PostController.createPostHandler,
+);
 
 /** DELETE REQS */
 
@@ -34,4 +43,4 @@ router.delete("/:id", isAuth, PostController.deletePost);
 // edit post
 router.put("/:id", isAuth, PostController.editPost);
 
-module.exports = router;
+export default router;
